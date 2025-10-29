@@ -1,14 +1,20 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import pickle
+from tensorflow import keras
 
-# Load the trained model
-with open("ipl_model.pkl", "rb") as f:
-    model = pickle.load(f)
+# Load the trained deep learning model
+model = keras.models.load_model("ipl_model.h5")
+
+# Load the scaler
+with open("scaler.pkl", "rb") as f:
+    scaler = pickle.load(f)
 
 st.set_page_config(page_title="IPL Score Predictor", page_icon="🏏", layout="centered")
 st.title("🏏 IPL Score Prediction App")
-st.markdown("### Predict the final score of an IPL innings based on the current match situation.")
+st.markdown("### Predict the final score using LSTM Deep Learning model")
+st.caption("🧠 Powered by Long Short-Term Memory Neural Network")
 
 # --- INPUTS ---
 batting_team = st.selectbox("Batting Team", [
@@ -65,18 +71,20 @@ if st.button("Predict Final Score"):
             bowl_team_encoded = team_encoder[bowling_team]
             venue_encoded = venue_encoder[venue]
             
-            # Create input dataframe with proper feature names
-            input_data = pd.DataFrame({
-                'bat_team': [bat_team_encoded],
-                'bowl_team': [bowl_team_encoded],
-                'venue': [venue_encoded],
-                'runs': [runs],
-                'wickets': [wickets],
-                'overs': [overs],
-                'runs_last_5': [runs_last_5]
-            })
+            # Create input array for LSTM model
+            input_array = np.array([[bat_team_encoded, bowl_team_encoded, venue_encoded, 
+                                   runs, wickets, overs, runs_last_5]])
             
-            prediction = model.predict(input_data)
-            st.success(f"🏁 **Predicted Final Score:** {int(prediction[0])} runs")
+            # Scale the input using the saved scaler
+            input_scaled = scaler.transform(input_array)
+            
+            # Reshape for LSTM: (samples, timesteps, features)
+            input_lstm = input_scaled.reshape((input_scaled.shape[0], input_scaled.shape[1], 1))
+            
+            # Make prediction using the LSTM model
+            prediction = model.predict(input_lstm, verbose=0)
+            predicted_score = int(prediction[0][0])
+            
+            st.success(f"🏁 **Predicted Final Score:** {predicted_score} runs")
         except Exception as e:
             st.error(f"⚠️ Error: {e}")
