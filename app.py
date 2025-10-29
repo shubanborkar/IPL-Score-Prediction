@@ -49,21 +49,6 @@ venue_encoder = {
     'M. Chinnaswamy Stadium': 3, 'M. A. Chidambaram Stadium': 4
 }
 
-bat_team_encoded = team_encoder[batting_team]
-bowl_team_encoded = team_encoder[bowling_team]
-venue_encoded = venue_encoder[venue]
-
-# Create input dataframe with proper feature names
-input_data = pd.DataFrame({
-    'bat_team': [bat_team_encoded],
-    'bowl_team': [bowl_team_encoded],
-    'venue': [venue_encoded],
-    'runs': [runs],
-    'wickets': [wickets],
-    'overs': [overs],
-    'runs_last_5': [runs_last_5]
-})
-
 # --- PREDICT ---
 if st.button("Predict Final Score"):
     # Validate all inputs are filled
@@ -75,6 +60,22 @@ if st.button("Predict Final Score"):
         st.error("⚠️ Batting and Bowling teams cannot be the same!")
     else:
         try:
+            # Encode the inputs
+            bat_team_encoded = team_encoder[batting_team]
+            bowl_team_encoded = team_encoder[bowling_team]
+            venue_encoded = venue_encoder[venue]
+            
+            # Create input dataframe with proper feature names
+            input_data = pd.DataFrame({
+                'bat_team': [bat_team_encoded],
+                'bowl_team': [bowl_team_encoded],
+                'venue': [venue_encoded],
+                'runs': [runs],
+                'wickets': [wickets],
+                'overs': [overs],
+                'runs_last_5': [runs_last_5]
+            })
+            
             prediction = model.predict(input_data)
             st.success(f"🏁 **Predicted Final Score:** {int(prediction[0])} runs")
         except Exception as e:
