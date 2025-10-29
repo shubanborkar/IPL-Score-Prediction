@@ -15,26 +15,26 @@ batting_team = st.selectbox("Batting Team", [
     'Chennai Super Kings', 'Delhi Capitals', 'Kings XI Punjab',
     'Kolkata Knight Riders', 'Mumbai Indians', 'Rajasthan Royals',
     'Royal Challengers Bangalore', 'Sunrisers Hyderabad'
-])
+], index=None, placeholder="Select a batting team")
 
 bowling_team = st.selectbox("Bowling Team", [
     'Chennai Super Kings', 'Delhi Capitals', 'Kings XI Punjab',
     'Kolkata Knight Riders', 'Mumbai Indians', 'Rajasthan Royals',
     'Royal Challengers Bangalore', 'Sunrisers Hyderabad'
-])
+], index=None, placeholder="Select a bowling team")
 
 venue = st.selectbox("Match Venue", [
     'Wankhede Stadium', 'Eden Gardens', 'Feroz Shah Kotla',
     'M. Chinnaswamy Stadium', 'M. A. Chidambaram Stadium'
-])
+], index=None, placeholder="Select a venue")
 
 col1, col2 = st.columns(2)
 with col1:
-    runs = st.number_input("Current Runs", min_value=0)
-    wickets = st.number_input("Wickets Fallen", min_value=0, max_value=10)
+    runs = st.number_input("Current Runs", min_value=0, value=None, placeholder="Enter runs")
+    wickets = st.number_input("Wickets Fallen", min_value=0, max_value=10, value=None, placeholder="Enter wickets")
 with col2:
-    overs = st.number_input("Overs Completed", min_value=5.0, max_value=20.0, step=0.1)
-    runs_last_5 = st.number_input("Runs Scored in Last 5 Overs", min_value=0)
+    overs = st.number_input("Overs Completed", min_value=5.0, max_value=20.0, step=0.1, value=None, placeholder="Enter overs")
+    runs_last_5 = st.number_input("Runs Scored in Last 5 Overs", min_value=0, value=None, placeholder="Enter runs")
 
 # --- ENCODING ---
 team_encoder = {
@@ -66,11 +66,19 @@ input_data = pd.DataFrame({
 
 # --- PREDICT ---
 if st.button("Predict Final Score"):
-    try:
-        prediction = model.predict(input_data)
-        st.success(f"🏁 **Predicted Final Score:** {int(prediction[0])} runs")
-    except Exception as e:
-        st.error(f"⚠️ Error: {e}")
+    # Validate all inputs are filled
+    if batting_team is None or bowling_team is None or venue is None:
+        st.error("⚠️ Please select all team and venue information.")
+    elif runs is None or wickets is None or overs is None or runs_last_5 is None:
+        st.error("⚠️ Please fill in all the match details.")
+    elif batting_team == bowling_team:
+        st.error("⚠️ Batting and Bowling teams cannot be the same!")
+    else:
+        try:
+            prediction = model.predict(input_data)
+            st.success(f"🏁 **Predicted Final Score:** {int(prediction[0])} runs")
+        except Exception as e:
+            st.error(f"⚠️ Error: {e}")
 
 st.markdown("---")
 st.caption("Developed by Shuban Borkar | Powered by Streamlit 🚀")
