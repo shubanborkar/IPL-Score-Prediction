@@ -80,6 +80,3 @@ if st.button("Predict Final Score"):
             st.success(f"🏁 **Predicted Final Score:** {int(prediction[0])} runs")
         except Exception as e:
             st.error(f"⚠️ Error: {e}")
-
-st.markdown("---")
-st.caption("Developed by Shuban Borkar | Powered by Streamlit 🚀")
