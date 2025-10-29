@@ -2,5 +2,6 @@ streamlit
 pandas
 numpy<2.0.0
 scikit-learn
-tensorflow==2.16.1
+tensorflow==2.15.1
+h5py==3.11.0
 protobuf<5.0.0
